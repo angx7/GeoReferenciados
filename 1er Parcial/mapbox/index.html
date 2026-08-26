@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
+    <title>My 1989 connection with Mapbox</title>
+  </head>
+  <body>
+    <div id="map" style="width: 100%; height: 500px"></div>
+    <script>
+      // Configuramos nuestro token de acceso a Mapbox
+      mapboxgl.accessToken = `pk.eyJ1IjoianVhbmZyOTciLCJhIjoiY2x4cnhqZGZpMWUzdTJrb2Qxd2k5Z3huYSJ9.Kp99lB1snn3xzzi26jKy4w`;
+      // Inicializar el mapa
+      const map = new mapboxgl.Map({
+        container: "map", // ID del contenedor del mapa
+        style: "mapbox://styles/mapbox/streets-v11", // Estilo del mapa
+        center: [-74.5, 40],
+        zoom: 9, // Nivel de zoom inicial
+      });
+
+      // Agregar una capa de puntos desde un archivo GeoJSON
+      map.on("load", function () {
+        map.addSource("places", {
+          type: "geojson",
+          // 'data': 'https://docs.mapbox.com/mapbox-gl-js/assets/earthquakes.geojson'
+          data: "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json",
+        });
+
+        map.addLayer({
+          id: "earthquakes",
+          type: "circle",
+          source: "places",
+          paint: {
+            "circle-radius": 4,
+            "circle-color": "#FF0000",
+          },
+        });
+      });
+
+      const popup = new mapboxgl.Popup({ offset: 25 }).setText(
+        "Este es un punto de interes",
+      );
+
+      new mapboxgl.Marker().setLngLat([-74.5, 40]).setPopup(popup).addTo(map);
+
+      map.on("load", function () {
+        map.addSource("route", {
+          type: "geojson",
+          data: {
+            type: "Feature",
+            properties: {},
+            geometry: {
+              type: "LineString",
+              coordinates: [
+                [-74.5, 40],
+                [-74.5, 40.2],
+                [-74.2, 40.2],
+                [-74.2, 40],
+                [-74.5, 40],
+              ],
+            },
+          },
+        });
+
+        map.addLayer({
+          id: "route",
+          type: "line",
+          source: "route",
+          layout: {
+            "line-join": "round",
+            "line-cap": "round",
+          },
+          paint: {
+            "line-color": "#888",
+            "line-width": 8,
+          },
+        });
+      });
+    </script>
+  </body>
+</html>

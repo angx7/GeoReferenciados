@@ -1,0 +1,264 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Zonas de interés en León, Guanajuato</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      }
+      body {
+        background-color: #f4f6f9;
+        color: #333;
+        display: flex;
+        flex-direction: column;
+        min-height: 100vh;
+      }
+      header {
+        background-color: #002b49; /* Azul institucional */
+        color: white;
+        text-align: center;
+        padding: 1.5rem;
+      }
+      main {
+        flex: 1;
+        max-width: 1100px;
+        width: 100%;
+        margin: 1.5rem auto;
+        padding: 0 1rem;
+      }
+      .description {
+        background: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
+      }
+      #mapid {
+        height: 520px;
+        width: 100%;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+      footer {
+        background-color: #1e1e1e;
+        color: #bbb;
+        text-align: center;
+        padding: 1rem;
+        font-size: 0.9rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Mapa de Zonas de Interés en León, Guanajuato</h1>
+    </header>
+    <main>
+      <div class="description">
+        <p>
+          Este mapa interactivo muestra zonas de interés en León, Guanajuato,
+          incluyendo la Plaza Mayor, la Universidad La Salle Bajío y la zona de
+          Altacia. Haz clic en los marcadores para obtener más información sobre
+          cada ubicación.
+        </p>
+      </div>
+
+      <div id="mapid"></div>
+    </main>
+
+    <script>
+      // Centro inicial en León (cerca de la zona de tus coordenadas)
+      var map = L.map("mapid", {
+        zoomControl: true,
+        scrollWheelZoom: true,
+      }).setView([21.125, -101.668], 12);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "OpenStreetMap y Asociados ULSB",
+      }).addTo(map);
+
+      // Polígono formado con tus coordenadas
+      var markerPlazaMayor = L.marker([21.157839, -101.695607]).addTo(map);
+      markerPlazaMayor.bindPopup("<b>Plaza Mayor</b><br>León, Guanajuato.");
+      var plazaMayor = L.polygon(
+        [
+          [21.155602, -101.696513],
+          [21.156358, -101.696963],
+          [21.157608, -101.69663],
+          [21.157705, -101.696964],
+          [21.15765, -101.696977],
+          [21.157714, -101.697223],
+          [21.157749, -101.697205],
+          [21.157849, -101.697554],
+          [21.158192, -101.69744],
+          [21.158856, -101.696255],
+          [21.158914, -101.696277],
+          [21.159349, -101.695381],
+          [21.158869, -101.69507],
+          [21.158839, -101.694978],
+          [21.159255, -101.694134],
+          [21.159344, -101.694142],
+          [21.159344, -101.69397],
+          [21.158924, -101.693729],
+          [21.158894, -101.693777],
+          [21.158858, -101.693748],
+          [21.158479, -101.694447],
+          [21.157879, -101.694083],
+          [21.157768, -101.694111],
+          [21.157699, -101.694254],
+          [21.157518, -101.694313],
+          [21.156659, -101.693775],
+          [21.156053, -101.694903],
+          [21.156328, -101.695102],
+          [21.156223, -101.695316],
+          [21.156763, -101.695676],
+          [21.156863, -101.695504],
+          [21.156898, -101.695526],
+          [21.156928, -101.695472],
+          [21.157118, -101.695434],
+          [21.156678, -101.696271],
+          [21.155943, -101.695853],
+        ],
+        {
+          color: "blue",
+          fillColor: "#3388ff",
+          fillOpacity: 0.4,
+        },
+      ).addTo(map);
+
+      plazaMayor.bindPopup("<b>Zona:</b> Centro Comercial Plaza Mayor");
+
+      var markerULSB1 = L.marker([21.154306, -101.712821]).addTo(map); // Marcador en el mapa
+
+      markerULSB1.bindPopup("<b>Parque de Innovación</b><br>La Salle Bajío.");
+
+      var markerULSB2 = L.marker([21.151451, -101.711315]).addTo(map); // Marcador en el mapa
+
+      markerULSB2.bindPopup("<b>Museo Universitario</b><br>La Salle Bajío.");
+
+      var markerULSB3 = L.marker([21.151763, -101.709789]).addTo(map); // Marcador en el mapa
+
+      markerULSB3.bindPopup(
+        "<b>Hospital Veterinario para pequeñas especies</b><br>La Salle Bajío.",
+      );
+
+      var ULSB = L.polygon(
+        [
+          [21.152799, -101.715014],
+          [21.153654, -101.712733],
+          [21.153868, -101.712848],
+          [21.153757, -101.713151],
+          [21.15462, -101.713497],
+          [21.154922, -101.712398],
+          [21.154139, -101.712101],
+          [21.153889, -101.712787],
+          [21.153671, -101.712686],
+          [21.154578, -101.71026],
+          [21.15235, -101.709323],
+          [21.150383, -101.7102],
+          [21.150354, -101.710197],
+          [21.151094, -101.711923],
+          [21.15113, -101.712053],
+          [21.151145, -101.712139],
+          [21.151155, -101.712236],
+          [21.15116, -101.712332],
+          [21.151148, -101.712555],
+          [21.151122, -101.712891],
+          [21.151225, -101.712998],
+          [21.151295, -101.713014],
+          [21.151938, -101.713237],
+          [21.152145, -101.713319],
+          [21.152225, -101.713352],
+          [21.152341, -101.713457],
+          [21.152421, -101.713555],
+          [21.152486, -101.713663],
+          [21.152551, -101.713786],
+          [21.152611, -101.713968],
+          [21.152667, -101.714422],
+          [21.152661, -101.714532],
+        ],
+        {
+          color: "green",
+          fillColor: "#00ff00",
+          fillOpacity: 0.5,
+        },
+      ).addTo(map);
+
+      ULSB.bindPopup("<b>Zona:</b> Universidad La Salle Bajío");
+
+      var markerAltacia = L.marker([21.092275, -101.62617]).addTo(map); // Marcador en el mapa
+
+      markerAltacia.bindPopup("<b>Altacia</b><br>León, Guanajuato.");
+
+      var Altacia = L.polygon(
+        [
+          [21.093652, -101.627782],
+          [21.093361, -101.626293],
+          [21.093246, -101.626191],
+          [21.093201, -101.626127],
+          [21.093123, -101.625997],
+          [21.092823, -101.625381],
+          [21.092683, -101.625123],
+          [21.092645, -101.62508],
+          [21.092563, -101.624876],
+          [21.092404, -101.624513],
+          [21.091417, -101.625004],
+          [21.091372, -101.624525], // Duda
+          [21.092543, -101.623986],
+          [21.09231, -101.623691],
+          [21.090454, -101.624594],
+          [21.090613, -101.624881],
+          [21.090776, -101.625203],
+          [21.091402, -101.62493], // Fin
+          // [21.091402, -101.624978],
+          [21.090863, -101.62523],
+          [21.090824, -101.625289],
+          [21.09116, -101.626056],
+          [21.091225, -101.626035],
+          [21.090884, -101.625247],
+          [21.091416, -101.625016],
+          [21.091731, -101.625788],
+          [21.09122, -101.626035],
+          [21.091155, -101.626051], // Duda2
+          // [21.091412, -101.624973],
+          // [21.090863, -101.62523],
+          [21.090818, -101.625289],
+          [21.091206, -101.626147],
+          [21.092202, -101.628229],
+          [21.092511, -101.628222],
+          [21.093409, -101.627789],
+        ],
+        {
+          color: "orange",
+          fillColor: "#ffa500",
+          fillOpacity: 0.5,
+        },
+      ).addTo(map);
+
+      Altacia.bindPopup("<b>Zona:</b> Altacia");
+      map.on("click", function (e) {
+        alert(
+          "Hiciste clic en: " +
+            e.latlng.lat.toFixed(6) +
+            ", " +
+            e.latlng.lng.toFixed(6),
+        );
+        L.marker(e.latlng).addTo(map);
+      });
+    </script>
+    <footer>
+      &copy; Todos los derechos reservados. Neotechmo. Fuente de datos:
+      OpenStreetMap.
+    </footer>
+  </body>
+</html>

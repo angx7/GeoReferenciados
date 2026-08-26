@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Probando Leaflet</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    />
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+    <style>
+      #mapid {
+        height: 400px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Hello this is my first page using Leaflet</h1>
+
+    <div id="mapid"></div>
+
+    <script>
+      var map = L.map("mapid").setView([51.505, -0.09], 13); // Latitud, Longitud y zoom
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        attribution: "OpenStreetMap y Asociados ULSB",
+      }).addTo(map);
+
+      var marker = L.marker([51.5, -0.09]).addTo(map); // Marcador en el mapa
+
+      marker.bindPopup("<b>Hola mundo!</b><br>Estoy en Londres.").openPopup(); // Popup del marcador
+
+      var circle = L.circle([51.508, -0.11], {
+        color: "red",
+        fillColor: "#f03",
+        fillOpacity: 0.5,
+        radius: 500,
+      }).addTo(map); // Círculo en el mapa
+
+      var polygon = L.polygon([
+        [51.509, -0.08],
+        [51.503, -0.06],
+        [51.51, -0.047],
+      ]).addTo(map); // Polígono en el mapa
+
+      var square = L.polygon([
+        [51.51, -0.1],
+        [51.51, -0.115],
+        [51.52, -0.115],
+        [51.52, -0.1],
+      ]).addTo(map); // Cuadrado en el mapa
+
+      map.on("click", function (e) {
+        alert("Hiciste clic en el mapa en: " + e.latlng);
+        var newMarker = L.marker(e.latlng).addTo(map); // Agregar un nuevo marcador en la ubicación del clic
+      }); // Evento de clic en el mapa
+    </script>
+  </body>
+</html>
+
+21.158130, -101.698833 21.158417, -101.698675 21.161299, -101.693375 21.161485,
+-101.692630 21.158486, -101.691960 21.157989, -101.692045 21.157593, -101.692218
+21.157281, -101.692392 21.156969, -101.692726 21.154756, -101.696774

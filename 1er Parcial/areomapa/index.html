@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <title>Visualizador de Aeropuertos y Fronteras - Mapbox</title>
+  </head>
+  <body>
+    <!-- Barra de navegación -->
+    <nav class="navbar">
+      <h1>AeroMapa</h1>
+      <ul>
+        <li><a href="#mapa">Mapa</a></li>
+        <li><a href="#fuentes">Fuentes</a></li>
+      </ul>
+    </nav>
+
+    <!-- Sección informativa -->
+    <section class="info">
+      <p>
+        Visualizador construido con Mapbox GL JS que muestra las fronteras de
+        los países del mundo y los aeropuertos internacionales. Haz clic en el
+        mapa para ver las coordenadas, o sobre un aeropuerto para ver su nombre
+        y código.
+      </p>
+    </section>
+
+    <!-- Mapa -->
+    <main id="mapa">
+      <div id="map"></div>
+
+      <div class="side-info">
+        <div class="coords-box">
+          <strong>Coordenadas:</strong>
+          <p id="coords">Haz clic en el mapa...</p>
+        </div>
+
+        <div class="legend">
+          <strong>Leyenda</strong>
+          <p>
+            <span class="dot dot-line"></span> Fronteras de países (Polygon)
+          </p>
+          <p><span class="dot dot-point"></span> Aeropuertos (Point)</p>
+          <p><span class="dot dot-cluster"></span> Cúmulo de aeropuertos</p>
+          <p><span class="dot dot-route"></span> Ruta de vuelo (LineString)</p>
+          <p><span class="dot dot-marker"></span> Marcador manual</p>
+        </div>
+      </div>
+    </main>
+
+    <!-- Fuentes de datos -->
+    <section class="fuentes" id="fuentes">
+      <h2>Fuentes de datos</h2>
+      <ul>
+        <li>
+          <strong>Fronteras de países (Polygon):</strong>
+          <code>countries.geo.json</code> de
+          <a href="https://github.com/johan/world.geo.json" target="_blank"
+            >johan/world.geo.json</a
+          >.
+        </li>
+        <li>
+          <strong>Aeropuertos (Point):</strong>
+          <code>ne_10m_airports.geojson</code> de
+          <a href="https://geojson.xyz" target="_blank">geojson.xyz</a> (Natural
+          Earth).
+        </li>
+        <li>
+          <strong>Ruta de vuelo (LineString):</strong> coordenadas escritas a
+          mano en <code>map.js</code>, entre el aeropuerto de León (BJX) y la
+          Ciudad de México (MEX).
+        </li>
+      </ul>
+    </section>
+
+    <footer>
+      <p>Práctica de Visualizador de Datos Georreferenciados con Mapbox</p>
+    </footer>
+
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
+    <script src="map.js"></script>
+  </body>
+</html>
