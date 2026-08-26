@@ -1,5 +1,4 @@
 // Configuramos nuestro token de acceso a Mapbox
-// Reemplaza esto con tu propio token (Account > Tokens en account.mapbox.com)
 mapboxgl.accessToken =
   "pk.eyJ1IjoianVhbmZyOTciLCJhIjoiY2x4cnhqZGZpMWUzdTJrb2Qxd2k5Z3huYSJ9.Kp99lB1snn3xzzi26jKy4w";
 
@@ -11,7 +10,7 @@ const map = new mapboxgl.Map({
   zoom: 2,
 });
 
-// Control de navegación (obligatorio)
+// Control de navegación
 map.addControl(new mapboxgl.NavigationControl());
 
 // Control adicional: pantalla completa
@@ -24,7 +23,7 @@ map.on("load", function () {
     data: "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json",
   });
 
-  // 1. Capa para el interior de los países (fondo azul transparente)
+  // 1. Capa para el interior de los países (para que se vea un color de relleno)
   map.addLayer({
     id: "countries-fill",
     type: "fill",
@@ -35,14 +34,14 @@ map.on("load", function () {
     },
   });
 
-  // 2. Capa NUEVA exclusiva para las fronteras
+  // 2. Capa exclusiva para las fronteras
   map.addLayer({
     id: "countries-borders",
     type: "line",
     source: "countries",
     paint: {
-      "line-color": "#4a90d9" /* Tu color rojo */,
-      "line-width": 2 /* ¡Aquí puedes hacer la línea más gruesa! Prueba con 2 o 3 */,
+      "line-color": "#4a90d9",
+      "line-width": 2,
     },
   });
 
@@ -50,7 +49,7 @@ map.on("load", function () {
   map.addSource("airports", {
     type: "geojson",
     data: "https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_10m_airports.geojson",
-    // ---- FUNCIONALIDAD ADICIONAL (no vista en clase): clustering ----
+    // ---- FUNCIONALIDAD ADICIONAL: clustering ----
     // Con cluster: true, Mapbox agrupa automáticamente los puntos que están
     // cerca cuando el zoom es bajo, y los separa conforme te acercas.
     // Esto evita mostrar cientos de aeropuertos amontonados en un zoom lejano.
@@ -173,7 +172,7 @@ const popup = new mapboxgl.Popup({ offset: 25 }).setText(
   "León, Guanajuato - origen de la ruta de vuelo",
 );
 
-new mapboxgl.Marker({ color: "#2ecc71" })
+new mapboxgl.Marker({ color: "#2ec9cc" })
   .setLngLat([-101.4805, 20.9935])
   .setPopup(popup)
   .addTo(map);
