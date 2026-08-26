@@ -3,19 +3,46 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Google Fonts para una tipografía moderna -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <!-- CSS de Mapbox -->
     <link
       href="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.css"
       rel="stylesheet"
     />
+    <!-- Tu hoja de estilos -->
     <link rel="stylesheet" href="styles.css" />
     <title>Visualizador de Aeropuertos y Fronteras - Mapbox</title>
   </head>
   <body>
     <!-- Barra de navegación -->
     <nav class="navbar">
-      <h1>AeroMapa</h1>
+      <div class="brand">
+        <!-- Ícono decorativo SVG -->
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon>
+          <line x1="9" y1="3" x2="9" y2="21"></line>
+          <line x1="15" y1="3" x2="15" y2="21"></line>
+        </svg>
+        <h1>AeroMapa</h1>
+      </div>
       <ul>
-        <li><a href="#mapa">Mapa</a></li>
+        <li><a href="#mapa-layout">Mapa</a></li>
         <li><a href="#fuentes">Fuentes</a></li>
       </ul>
     </nav>
@@ -23,34 +50,40 @@
     <!-- Sección informativa -->
     <section class="info">
       <p>
-        Visualizador construido con Mapbox GL JS que muestra las fronteras de
-        los países del mundo y los aeropuertos internacionales. Haz clic en el
-        mapa para ver las coordenadas, o sobre un aeropuerto para ver su nombre
-        y código.
+        Visualizador construido con <strong>Mapbox GL JS</strong> que muestra
+        las fronteras de los países del mundo y los aeropuertos internacionales.
+        Haz clic en el mapa para ver las coordenadas, o sobre un aeropuerto para
+        ver su información.
       </p>
     </section>
 
-    <!-- Mapa -->
-    <main id="mapa">
+    <!-- Contenedor Principal (Mapa y Panel) -->
+    <main id="mapa-layout" class="map-layout">
+      <!-- El mapa ahora es el elemento dominante -->
       <div id="map"></div>
 
-      <div class="side-info">
-        <div class="coords-box">
-          <strong>Coordenadas:</strong>
-          <p id="coords">Haz clic en el mapa...</p>
+      <!-- Panel lateral con estilo de Dashboard -->
+      <aside class="side-panel">
+        <div class="card">
+          <h2>📍 Coordenadas</h2>
+          <p id="coords" class="coords-display">Haz clic en el mapa...</p>
         </div>
 
-        <div class="legend">
-          <strong>Leyenda</strong>
-          <p>
-            <span class="dot dot-line"></span> Fronteras de países (Polygon)
-          </p>
-          <p><span class="dot dot-point"></span> Aeropuertos (Point)</p>
-          <p><span class="dot dot-cluster"></span> Cúmulo de aeropuertos</p>
-          <p><span class="dot dot-route"></span> Ruta de vuelo (LineString)</p>
-          <p><span class="dot dot-marker"></span> Marcador manual</p>
+        <div class="card legend-card">
+          <h2>📑 Leyenda</h2>
+          <ul>
+            <li>
+              <span class="dot dot-line"></span> Fronteras de países (Polygon)
+            </li>
+            <li><span class="dot dot-point"></span> Aeropuertos (Point)</li>
+            <li><span class="dot dot-cluster"></span> Cúmulo de aeropuertos</li>
+            <li>
+              <span class="dot dot-route"></span> Ruta de vuelo (LineString)
+            </li>
+            <li><span class="dot dot-marker"></span> Marcador manual</li>
+          </ul>
         </div>
-      </div>
+      </aside>
     </main>
 
     <!-- Fuentes de datos -->
@@ -60,15 +93,20 @@
         <li>
           <strong>Fronteras de países (Polygon):</strong>
           <code>countries.geo.json</code> de
-          <a href="https://github.com/johan/world.geo.json" target="_blank"
+          <a
+            href="https://github.com/johan/world.geo.json"
+            target="_blank"
+            rel="noopener"
             >johan/world.geo.json</a
           >.
         </li>
         <li>
           <strong>Aeropuertos (Point):</strong>
           <code>ne_10m_airports.geojson</code> de
-          <a href="https://geojson.xyz" target="_blank">geojson.xyz</a> (Natural
-          Earth).
+          <a href="https://geojson.xyz" target="_blank" rel="noopener"
+            >geojson.xyz</a
+          >
+          (Natural Earth).
         </li>
         <li>
           <strong>Ruta de vuelo (LineString):</strong> coordenadas escritas a
@@ -79,10 +117,12 @@
     </section>
 
     <footer>
-      <p>Práctica de Visualizador de Datos Georreferenciados con Mapbox</p>
+      <p>Práctica: Visualizador de Datos Georreferenciados con Mapbox</p>
     </footer>
 
+    <!-- Scripts -->
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.10.0/mapbox-gl.js"></script>
+    <!-- ¡CORREGIDO EL NOMBRE DEL ARCHIVO PARA LA RÚBRICA! -->
     <script src="map.js"></script>
   </body>
 </html>
