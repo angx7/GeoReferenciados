@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sistema de Incidentes Urbanos</title>
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <!-- Encabezado Principal -->
+    <header class="main-header">
+      <div>
+        <h1>Sistema de Incidentes Urbanos</h1>
+        <p>Registro y visualización local de información georeferenciada</p>
+      </div>
+
+      <button
+        type="button"
+        id="btn-fit-map"
+        class="button button-secondary"
+        title="Mostrar todos"
+      >
+        Mostrar todos
+      </button>
+    </header>
+    <main class="application-layout">
+      <aside class="sidebar">
+        <section class="panel-section">
+          <h2>Resumen</h2>
+          <div class="statistics-grid">
+            <article class="statistics-card">
+              <span class="statistics-label">Total: </span>
+              <strong id="stat-total">0</strong>
+            </article>
+            <article class="statistics-card">
+              <span class="statistics-label">Pendientes: </span>
+              <strong id="stat-pending">0</strong>
+            </article>
+            <article class="statistics-card">
+              <span class="statistics-label">Atendidos: </span>
+              <strong id="stat-resolved">0</strong>
+            </article>
+          </div>
+        </section>
+        <section class="panel-section">
+          <h2>Buscar y filtrar</h2>
+          <div class="form-group">
+            <label for="search-input">Buscar Incidentes</label>
+            <input
+              type="search"
+              name="search"
+              id="search-input"
+              placeholder="Nombre, descripción o categoria"
+            />
+          </div>
+          <div class="filters-grid">
+            <div class="form-group">
+              <label for="category-filter">Categoria</label>
+              <select name="category-filter" id="category-filter">
+                <option value="all">Todas</option>
+                <option value="bache">Bache</option>
+                <option value="alumbrado">Alumbrado</option>
+                <option value="basura">Basura</option>
+                <option value="fuga">Fuga de agua</option>
+                <option value="accidente">Accidente</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="status-filter">Estado</label>
+              <select name="status-filter" id="status-filter">
+                <option value="all">Todos</option>
+                <option value="pendiente">Pendiente</option>
+                <option value="atendido">Atendido</option>
+              </select>
+            </div>
+          </div>
+        </section>
+        <section class="panel-section">
+          <div class="search-title-row">
+            <h2 id="form-title">Registrar indidente</h2>
+            <span id="form-mode-badge" class="mode-badge">Nuevo</span>
+          </div>
+          <p class="section-help">
+            Haz clic sobre el mapa para seleccionar la ubicación
+          </p>
+          <form action="" id="incidente-form">
+            <input type="hidden" name="incident-id" id="incident-id" />
+            <div class="form-group">
+              <label for="title-input">Nombre del incidente</label>
+              <input
+                type="text"
+                name="title-input"
+                id="title-input"
+                placeholder="Ej. Bache frente a la salle por Av. Universidad"
+                maxlength="80"
+                required
+              />
+            </div>
+            <div class="form-group">
+              <label for="category-input">Categoria</label>
+              <select name="category-input" id="category-input" required>
+                <option value="">Selecciona una categoria</option>
+                <option value="bache">Bache</option>
+                <option value="alumbrado">Alumbrado</option>
+                <option value="basura">Basura</option>
+                <option value="fuga">Fuga de agua</option>
+                <option value="accidente">Accidente</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="description-input">Descripcion</label>
+              <textarea
+                name="description-input"
+                id="description-input"
+                rows="3"
+                maxlength="250"
+                placeholder="Describe brevemente el problema"
+                required
+              ></textarea>
+            </div>
+            <div class="form-group">
+              <label for="satatus-input">Estado</label>
+              <select
+                title="Estado"
+                name="status-input"
+                id="status-input"
+                required
+              >
+                <option value="pendiente">Pendiente</option>
+                <option value="atendido">Atendido</option>
+              </select>
+            </div>
+            <div class="coordinates-grid">
+              <div class="form-group">
+                <label for="latitude-input">Latitud</label>
+                <input
+                  type="number"
+                  id="latitude-input"
+                  step="any"
+                  placeholder="21.122"
+                  required
+                />
+              </div>
+              <div class="form-group">
+                <label for="longitude-input">Longitud</label>
+                <input
+                  type="number"
+                  id="longitude-input"
+                  step="any"
+                  placeholder="101.680"
+                  required
+                />
+              </div>
+            </div>
+
+            <div id="form-message" class="form-message" hidden></div>
+            <div class="form-actions">
+              <button
+                type="submit"
+                id="save-button"
+                class="button button-primary"
+                title="Enviar"
+              >
+                Guardar incidente
+              </button>
+              <button
+                type="submit"
+                id="cancel-button"
+                class="button button-danger"
+                title="Cancelar"
+              >
+                Cancelar edición
+              </button>
+            </div>
+          </form>
+        </section>
+        <section class="panel-section incident-section">
+          <div class="section-title-row">
+            <h2>Incidentes registrados</h2>
+            <span id="results-counter" class="results-counter"
+              >0 resultados
+            </span>
+          </div>
+          <div id="incidents-list" class="incidents-list"></div>
+          <div id="empty-message" class="empty-message" hidden>
+            No se encontraron incidentes con los filtros seleccionados
+          </div>
+        </section>
+      </aside>
+      <!-- Área del mapa -->
+      <section class="map-area">
+        <div id="map"></div>
+        <div id="coordinate-indicator" class="coordinate-indicator">
+          Haz clic en el mapa para seleccionar las coordenadas
+        </div>
+      </section>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

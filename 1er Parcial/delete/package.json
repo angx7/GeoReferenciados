@@ -1,0 +1,27 @@
+{
+  "dependencies": {
+    "cors": "^2.8.6",
+    "express": "^5.3.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  },
+  "name": "delete",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [
+    "node",
+    "express",
+    "leaflet",
+    "geojson",
+    "georreferenciado"
+  ],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs"
+}
