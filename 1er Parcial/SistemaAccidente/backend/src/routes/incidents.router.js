@@ -54,4 +54,47 @@ router.get("/:id", async (req, res) => {
   });
 });
 
+/**
+ * POST /
+ * Registra un nuevo incidente urbano en memoria.
+ */
+router.post("/", async (req, res) => {
+  const incidentData = req.body;
+
+  const newIncident = await service.create(incidentData);
+  res.status(201).json({
+    message: "Incidente urbano registrado exitosamente.",
+    data: newIncident,
+  });
+});
+
+/**
+ * PATCH /:id
+ * Actualiza parcialmente los datos de un incidente urbano existente.
+ */
+router.patch("/:id", async (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  const updatedIncident = await service.update(id, changes);
+  res.status(200).json({
+    message: "Incidente urbano actualizado exitosamente.",
+    data: updatedIncident,
+  });
+});
+
+/**
+ * DELETE /:id
+ * Elimina un incidente urbano existente por su ID.
+ */
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const deletedIncident = await service.delete(id);
+  res.status(200).json({
+    message: "Incidente urbano eliminado exitosamente.",
+    data: deletedIncident,
+  });
+});
+
 module.exports = router;

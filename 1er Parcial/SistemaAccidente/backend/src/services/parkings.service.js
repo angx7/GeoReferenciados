@@ -1,11 +1,14 @@
 "use strict";
 
+const { randomUUID } = require("node:crypto");
+
 const seedParkings = require("../data/parkings.seed");
 const AppError = require("../utils/appError");
 
 /**
  * Servicio para la gestión de Estacionamientos Públicos.
- * Ofrece métodos para consultar aparcamientos según tipo de infraestructura, capacidad y disponibilidad.
+ * Ofrece métodos para consultar aparcamientos según tipo de infraestructura, capacidad y disponibilidad,
+ * además de creación, actualización parcial, eliminación y exportación GeoJSON.
  */
 class ParkingsService {
   constructor() {
@@ -67,6 +70,114 @@ class ParkingsService {
       );
     }
     return parking;
+  }
+
+  /**
+   * Registra un nuevo estacionamiento público en memoria siguiendo la estructura de clase.
+   * @param {Object} data - Datos del estacionamiento a crear.
+   * @returns {Promise<Object>} Estacionamiento creado con su ID generado y timestamps.
+   */
+  async create(data) {
+    const coordinates =
+      data.location && Array.isArray(data.location.coordinates)
+        ? [
+            Number(data.location.coordinates[0]),
+            Number(data.location.coordinates[1]),
+          ]
+        : [Number(data.longitude), Number(data.latitude)];
+
+    const newParking = {
+      id: `PARK-${randomUUID()}`,
+      name: data.name.trim(),
+      type: data.type,
+      status: data.status || "abierto",
+      description: data.description.trim(),
+      capacity: Number(data.capacity),
+      location: {
+        type: "Point",
+        coordinates,
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.parkings.push(newParking);
+    return newParking;
+  }
+
+  /**
+   * Actualiza parcialmente los datos de un estacionamiento público existente por su ID.
+   * @param {string} id - Identificador del estacionamiento a modificar.
+   * @param {Object} changes - Campos a actualizar parcialmente.
+   * @throws {AppError} 404 si el estacionamiento no existe.
+   * @returns {Promise<Object>} Estacionamiento actualizado.
+   */
+  async update(id, changes) {
+    const index = this.parkings.findIndex((parking) => parking.id === id);
+    if (index === -1) {
+      throw new AppError(
+        404,
+        `Estacionamiento no encontrado/inexistente con el id: ${id}`,
+      );
+    }
+
+    const currentParking = this.parkings[index];
+    const currentLongitude = currentParking.location.coordinates[0];
+    const currentLatitude = currentParking.location.coordinates[1];
+
+    const updatedLongitude =
+      changes.longitude !== undefined
+        ? Number(changes.longitude)
+        : changes.location?.coordinates?.[0] !== undefined
+          ? Number(changes.location.coordinates[0])
+          : currentLongitude;
+
+    const updatedLatitude =
+      changes.latitude !== undefined
+        ? Number(changes.latitude)
+        : changes.location?.coordinates?.[1] !== undefined
+          ? Number(changes.location.coordinates[1])
+          : currentLatitude;
+
+    const updatedParking = {
+      ...currentParking,
+      ...(changes.name !== undefined && { name: changes.name.trim() }),
+      ...(changes.type !== undefined && { type: changes.type }),
+      ...(changes.status !== undefined && { status: changes.status }),
+      ...(changes.description !== undefined && {
+        description: changes.description.trim(),
+      }),
+      ...(changes.capacity !== undefined && {
+        capacity: Number(changes.capacity),
+      }),
+      location: {
+        type: "Point",
+        coordinates: [updatedLongitude, updatedLatitude],
+      },
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.parkings[index] = updatedParking;
+    return updatedParking;
+  }
+
+  /**
+   * Elimina un estacionamiento público del arreglo en memoria a partir de su ID.
+   * @param {string} id - Identificador del estacionamiento a borrar.
+   * @throws {AppError} 404 si el estacionamiento no existe.
+   * @returns {Promise<Object>} Estacionamiento eliminado.
+   */
+  async delete(id) {
+    const index = this.parkings.findIndex((parking) => parking.id === id);
+    if (index === -1) {
+      throw new AppError(
+        404,
+        `Estacionamiento no encontrado/inexistente con el id: ${id}`,
+      );
+    }
+
+    const deletedParking = this.parkings.splice(index, 1)[0];
+    return deletedParking;
   }
 
   /**

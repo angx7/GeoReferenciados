@@ -18,7 +18,7 @@ function routerApi(app) {
   app.use("/api", apiRouter);
 
   // Registro de rutas para cada una de las 5 entidades del backend:
-  // 1. Incidentes urbanos (trabajado previamente en clase)
+  // 1. Incidentes urbanos
   apiRouter.use("/incidents", incidentsRouter);
 
   // 2. Hospitales y clínicas

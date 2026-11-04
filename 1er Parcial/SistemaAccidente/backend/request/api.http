@@ -1,0 +1,202 @@
+### Variables globales
+@baseUrl = http://localhost:3000/api
+
+### ==============================================================================
+### 0. SALUD DEL SERVIDOR
+### ==============================================================================
+
+### Health Check
+GET {{baseUrl}}/health
+
+### ==============================================================================
+### 1. INCIDENTES URBANOS (/api/incidents)
+### ==============================================================================
+
+### 1.1 Listar todos los incidentes
+GET {{baseUrl}}/incidents
+
+### 1.2 Listar incidentes en formato GeoJSON
+GET {{baseUrl}}/incidents/geojson
+
+### 1.3 Obtener incidente por ID
+GET {{baseUrl}}/incidents/INC-011
+
+### 1.4 Crear un nuevo incidente (POST)
+POST {{baseUrl}}/incidents
+Content-Type: application/json
+
+{
+  "title": "Bache profundo en Blvd. San Juan Bosco",
+  "category": "bache",
+  "description": "Bache de gran tamaño en carril derecho frente a la estación de transferencia",
+  "longitude": -101.7142,
+  "latitude": 21.1356
+}
+
+### 1.5 Actualizar parcialmente un incidente (PATCH)
+PATCH {{baseUrl}}/incidents/INC-011
+Content-Type: application/json
+
+{
+  "status": "atendido",
+  "description": "Bache reparado por cuadrilla de obras públicas"
+}
+
+### 1.6 Eliminar un incidente (DELETE)
+DELETE {{baseUrl}}/incidents/INC-011
+
+### ==============================================================================
+### 2. HOSPITALES Y CLÍNICAS (/api/hospitals)
+### ==============================================================================
+
+### 2.1 Listar todos los hospitales
+GET {{baseUrl}}/hospitals
+
+### 2.2 Listar hospitales en formato GeoJSON
+GET {{baseUrl}}/hospitals/geojson
+
+### 2.3 Obtener hospital por ID
+GET {{baseUrl}}/hospitals/HOSP-001
+
+### 2.4 Crear un nuevo hospital (POST)
+POST {{baseUrl}}/hospitals
+Content-Type: application/json
+
+{
+  "name": "Clínica Médica Poniente",
+  "type": "clinica",
+  "status": "operando",
+  "description": "Atención médica general y urgencias menores en zona Las Joyas",
+  "beds": 18,
+  "longitude": -101.7451,
+  "latitude": 21.1382
+}
+
+### 2.5 Actualizar parcialmente un hospital (PATCH)
+PATCH {{baseUrl}}/hospitals/HOSP-001
+Content-Type: application/json
+
+{
+  "status": "saturado",
+  "beds": 265
+}
+
+### 2.6 Eliminar un hospital (DELETE)
+DELETE {{baseUrl}}/hospitals/HOSP-007
+
+### ==============================================================================
+### 3. ESTACIONES DE EMERGENCIA (/api/stations)
+### ==============================================================================
+
+### 3.1 Listar todas las estaciones
+GET {{baseUrl}}/stations
+
+### 3.2 Listar estaciones en formato GeoJSON
+GET {{baseUrl}}/stations/geojson
+
+### 3.3 Obtener estación por ID
+GET {{baseUrl}}/stations/STAT-001
+
+### 3.4 Crear una nueva estación (POST)
+POST {{baseUrl}}/stations
+Content-Type: application/json
+
+{
+  "name": "Módulo de Policía y Vialidad Delta",
+  "type": "policia",
+  "status": "activa",
+  "description": "Módulo de proximidad y vigilancia sobre Bulevar Delta",
+  "units": 12,
+  "longitude": -101.6214,
+  "latitude": 21.0841
+}
+
+### 3.5 Actualizar parcialmente una estación (PATCH)
+PATCH {{baseUrl}}/stations/STAT-001
+Content-Type: application/json
+
+{
+  "units": 10,
+  "status": "activa"
+}
+
+### 3.6 Eliminar una estación (DELETE)
+DELETE {{baseUrl}}/stations/STAT-007
+
+### ==============================================================================
+### 4. CÁMARAS DE VIDEOVIGILANCIA (/api/cameras)
+### ==============================================================================
+
+### 4.1 Listar todas las cámaras
+GET {{baseUrl}}/cameras
+
+### 4.2 Listar cámaras en formato GeoJSON
+GET {{baseUrl}}/cameras/geojson
+
+### 4.3 Obtener cámara por ID
+GET {{baseUrl}}/cameras/CAM-001
+
+### 4.4 Crear una nueva cámara (POST)
+POST {{baseUrl}}/cameras
+Content-Type: application/json
+
+{
+  "name": "Cámara LPR Distribuidor Vial Juan Pablo II",
+  "type": "lectora_placas",
+  "status": "activa",
+  "description": "Monitoreo y lectura automática de placas vehicular en acceso sur",
+  "rangeMeters": 180,
+  "longitude": -101.6378,
+  "latitude": 21.0895
+}
+
+### 4.5 Actualizar parcialmente una cámara (PATCH)
+PATCH {{baseUrl}}/cameras/CAM-007
+Content-Type: application/json
+
+{
+  "status": "activa",
+  "rangeMeters": 280
+}
+
+### 4.6 Eliminar una cámara (DELETE)
+DELETE {{baseUrl}}/cameras/CAM-007
+
+### ==============================================================================
+### 5. ESTACIONAMIENTOS PÚBLICOS (/api/parkings)
+### ==============================================================================
+
+### 5.1 Listar todos los estacionamientos
+GET {{baseUrl}}/parkings
+
+### 5.2 Listar estacionamientos en formato GeoJSON
+GET {{baseUrl}}/parkings/geojson
+
+### 5.3 Obtener estacionamiento por ID
+GET {{baseUrl}}/parkings/PARK-001
+
+### 5.4 Crear un nuevo estacionamiento (POST)
+POST {{baseUrl}}/parkings
+Content-Type: application/json
+
+{
+  "name": "Estacionamiento Plaza Expiatorio",
+  "type": "subterraneo",
+  "status": "abierto",
+  "description": "Estacionamiento subterráneo con acceso por calle Madero",
+  "capacity": 220,
+  "longitude": -101.6782,
+  "latitude": 21.1215
+}
+
+### 5.5 Actualizar parcialmente un estacionamiento (PATCH)
+PATCH {{baseUrl}}/parkings/PARK-004
+Content-Type: application/json
+
+{
+  "status": "abierto",
+  "capacity": 95000000
+}
+
+### 5.6 Eliminar un estacionamiento (DELETE)
+DELETE {{baseUrl}}/parkings/PARK-004

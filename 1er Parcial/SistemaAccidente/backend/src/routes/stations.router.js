@@ -56,4 +56,47 @@ router.get("/:id", async (req, res) => {
   });
 });
 
+/**
+ * POST /
+ * Registra una nueva estación de emergencia en memoria.
+ */
+router.post("/", async (req, res) => {
+  const stationData = req.body;
+
+  const newStation = await service.create(stationData);
+  res.status(201).json({
+    message: "Estación de emergencia registrada exitosamente.",
+    data: newStation,
+  });
+});
+
+/**
+ * PATCH /:id
+ * Actualiza parcialmente los datos de una estación de emergencia existente.
+ */
+router.patch("/:id", async (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  const updatedStation = await service.update(id, changes);
+  res.status(200).json({
+    message: "Estación de emergencia actualizada exitosamente.",
+    data: updatedStation,
+  });
+});
+
+/**
+ * DELETE /:id
+ * Elimina una estación de emergencia existente por su ID.
+ */
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const deletedStation = await service.delete(id);
+  res.status(200).json({
+    message: "Estación de emergencia eliminada exitosamente.",
+    data: deletedStation,
+  });
+});
+
 module.exports = router;

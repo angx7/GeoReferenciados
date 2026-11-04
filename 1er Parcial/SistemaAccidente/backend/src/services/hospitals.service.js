@@ -1,11 +1,14 @@
 "use strict";
 
+const { randomUUID } = require("node:crypto");
+
 const seedHospitals = require("../data/hospitals.seed");
 const AppError = require("../utils/appError");
 
 /**
  * Servicio para la gestión de Hospitales y Clínicas.
- * Proporciona métodos de consulta con filtros, obtención por ID y exportación en formato GeoJSON.
+ * Proporciona métodos de consulta con filtros, obtención por ID, creación,
+ * actualización parcial, eliminación y exportación en formato GeoJSON.
  */
 class HospitalsService {
   constructor() {
@@ -67,6 +70,112 @@ class HospitalsService {
       );
     }
     return hospital;
+  }
+
+  /**
+   * Registra un nuevo hospital o clínica en memoria siguiendo la estructura de clase.
+   * @param {Object} data - Datos del hospital a crear.
+   * @returns {Promise<Object>} Hospital creado con su ID generado y timestamps.
+   */
+  async create(data) {
+    const coordinates =
+      data.location && Array.isArray(data.location.coordinates)
+        ? [
+            Number(data.location.coordinates[0]),
+            Number(data.location.coordinates[1]),
+          ]
+        : [Number(data.longitude), Number(data.latitude)];
+
+    const newHospital = {
+      id: `HOSP-${randomUUID()}`,
+      name: data.name.trim(),
+      type: data.type,
+      status: data.status || "operando",
+      description: data.description.trim(),
+      beds: Number(data.beds),
+      location: {
+        type: "Point",
+        coordinates,
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.hospitals.push(newHospital);
+    return newHospital;
+  }
+
+  /**
+   * Actualiza parcialmente los datos de un hospital existente por su ID.
+   * @param {string} id - Identificador del hospital a modificar.
+   * @param {Object} changes - Campos a actualizar parcialmente.
+   * @throws {AppError} 404 si el hospital no existe.
+   * @returns {Promise<Object>} Hospital actualizado.
+   */
+  async update(id, changes) {
+    const index = this.hospitals.findIndex((hospital) => hospital.id === id);
+    if (index === -1) {
+      throw new AppError(
+        404,
+        `Hospital no encontrado/inexistente con el id: ${id}`,
+      );
+    }
+
+    const currentHospital = this.hospitals[index];
+    const currentLongitude = currentHospital.location.coordinates[0];
+    const currentLatitude = currentHospital.location.coordinates[1];
+
+    const updatedLongitude =
+      changes.longitude !== undefined
+        ? Number(changes.longitude)
+        : changes.location?.coordinates?.[0] !== undefined
+          ? Number(changes.location.coordinates[0])
+          : currentLongitude;
+
+    const updatedLatitude =
+      changes.latitude !== undefined
+        ? Number(changes.latitude)
+        : changes.location?.coordinates?.[1] !== undefined
+          ? Number(changes.location.coordinates[1])
+          : currentLatitude;
+
+    const updatedHospital = {
+      ...currentHospital,
+      ...(changes.name !== undefined && { name: changes.name.trim() }),
+      ...(changes.type !== undefined && { type: changes.type }),
+      ...(changes.status !== undefined && { status: changes.status }),
+      ...(changes.description !== undefined && {
+        description: changes.description.trim(),
+      }),
+      ...(changes.beds !== undefined && { beds: Number(changes.beds) }),
+      location: {
+        type: "Point",
+        coordinates: [updatedLongitude, updatedLatitude],
+      },
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.hospitals[index] = updatedHospital;
+    return updatedHospital;
+  }
+
+  /**
+   * Elimina un hospital del arreglo en memoria a partir de su ID.
+   * @param {string} id - Identificador del hospital a borrar.
+   * @throws {AppError} 404 si el hospital no existe.
+   * @returns {Promise<Object>} Hospital eliminado.
+   */
+  async delete(id) {
+    const index = this.hospitals.findIndex((hospital) => hospital.id === id);
+    if (index === -1) {
+      throw new AppError(
+        404,
+        `Hospital no encontrado/inexistente con el id: ${id}`,
+      );
+    }
+
+    const deletedHospital = this.hospitals.splice(index, 1)[0];
+    return deletedHospital;
   }
 
   /**

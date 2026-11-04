@@ -56,4 +56,47 @@ router.get("/:id", async (req, res) => {
   });
 });
 
+/**
+ * POST /
+ * Registra una nueva cámara de videovigilancia en memoria.
+ */
+router.post("/", async (req, res) => {
+  const cameraData = req.body;
+
+  const newCamera = await service.create(cameraData);
+  res.status(201).json({
+    message: "Cámara de videovigilancia registrada exitosamente.",
+    data: newCamera,
+  });
+});
+
+/**
+ * PATCH /:id
+ * Actualiza parcialmente los datos de una cámara de videovigilancia existente.
+ */
+router.patch("/:id", async (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  const updatedCamera = await service.update(id, changes);
+  res.status(200).json({
+    message: "Cámara de videovigilancia actualizada exitosamente.",
+    data: updatedCamera,
+  });
+});
+
+/**
+ * DELETE /:id
+ * Elimina una cámara de videovigilancia existente por su ID.
+ */
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const deletedCamera = await service.delete(id);
+  res.status(200).json({
+    message: "Cámara de videovigilancia eliminada exitosamente.",
+    data: deletedCamera,
+  });
+});
+
 module.exports = router;

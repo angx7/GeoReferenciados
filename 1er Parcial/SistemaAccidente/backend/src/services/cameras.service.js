@@ -1,11 +1,14 @@
 "use strict";
 
+const { randomUUID } = require("node:crypto");
+
 const seedCameras = require("../data/cameras.seed");
 const AppError = require("../utils/appError");
 
 /**
  * Servicio para la gestión de Cámaras de Videovigilancia y Monitoreo Urbano.
- * Facilita filtros por cobertura, tipo de lente y estado operativo, además de exportación GeoJSON.
+ * Facilita filtros por cobertura, tipo de lente y estado operativo, creación,
+ * actualización parcial, eliminación y exportación GeoJSON.
  */
 class CamerasService {
   constructor() {
@@ -67,6 +70,114 @@ class CamerasService {
       );
     }
     return camera;
+  }
+
+  /**
+   * Registra una nueva cámara de videovigilancia en memoria siguiendo la estructura de clase.
+   * @param {Object} data - Datos de la cámara a crear.
+   * @returns {Promise<Object>} Cámara creada con su ID generado y timestamps.
+   */
+  async create(data) {
+    const coordinates =
+      data.location && Array.isArray(data.location.coordinates)
+        ? [
+            Number(data.location.coordinates[0]),
+            Number(data.location.coordinates[1]),
+          ]
+        : [Number(data.longitude), Number(data.latitude)];
+
+    const newCamera = {
+      id: `CAM-${randomUUID()}`,
+      name: data.name.trim(),
+      type: data.type,
+      status: data.status || "activa",
+      description: data.description.trim(),
+      rangeMeters: Number(data.rangeMeters),
+      location: {
+        type: "Point",
+        coordinates,
+      },
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.cameras.push(newCamera);
+    return newCamera;
+  }
+
+  /**
+   * Actualiza parcialmente los datos de una cámara de videovigilancia existente por su ID.
+   * @param {string} id - Identificador de la cámara a modificar.
+   * @param {Object} changes - Campos a actualizar parcialmente.
+   * @throws {AppError} 404 si la cámara no existe.
+   * @returns {Promise<Object>} Cámara actualizada.
+   */
+  async update(id, changes) {
+    const index = this.cameras.findIndex((camera) => camera.id === id);
+    if (index === -1) {
+      throw new AppError(
+        404,
+        `Cámara de videovigilancia no encontrada/inexistente con el id: ${id}`,
+      );
+    }
+
+    const currentCamera = this.cameras[index];
+    const currentLongitude = currentCamera.location.coordinates[0];
+    const currentLatitude = currentCamera.location.coordinates[1];
+
+    const updatedLongitude =
+      changes.longitude !== undefined
+        ? Number(changes.longitude)
+        : changes.location?.coordinates?.[0] !== undefined
+          ? Number(changes.location.coordinates[0])
+          : currentLongitude;
+
+    const updatedLatitude =
+      changes.latitude !== undefined
+        ? Number(changes.latitude)
+        : changes.location?.coordinates?.[1] !== undefined
+          ? Number(changes.location.coordinates[1])
+          : currentLatitude;
+
+    const updatedCamera = {
+      ...currentCamera,
+      ...(changes.name !== undefined && { name: changes.name.trim() }),
+      ...(changes.type !== undefined && { type: changes.type }),
+      ...(changes.status !== undefined && { status: changes.status }),
+      ...(changes.description !== undefined && {
+        description: changes.description.trim(),
+      }),
+      ...(changes.rangeMeters !== undefined && {
+        rangeMeters: Number(changes.rangeMeters),
+      }),
+      location: {
+        type: "Point",
+        coordinates: [updatedLongitude, updatedLatitude],
+      },
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.cameras[index] = updatedCamera;
+    return updatedCamera;
+  }
+
+  /**
+   * Elimina una cámara de videovigilancia del arreglo en memoria a partir de su ID.
+   * @param {string} id - Identificador de la cámara a borrar.
+   * @throws {AppError} 404 si la cámara no existe.
+   * @returns {Promise<Object>} Cámara eliminada.
+   */
+  async delete(id) {
+    const index = this.cameras.findIndex((camera) => camera.id === id);
+    if (index === -1) {
+      throw new AppError(
+        404,
+        `Cámara de videovigilancia no encontrada/inexistente con el id: ${id}`,
+      );
+    }
+
+    const deletedCamera = this.cameras.splice(index, 1)[0];
+    return deletedCamera;
   }
 
   /**

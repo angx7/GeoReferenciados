@@ -56,4 +56,47 @@ router.get("/:id", async (req, res) => {
   });
 });
 
+/**
+ * POST /
+ * Registra un nuevo hospital o clínica en memoria.
+ */
+router.post("/", async (req, res) => {
+  const hospitalData = req.body;
+
+  const newHospital = await service.create(hospitalData);
+  res.status(201).json({
+    message: "Hospital o clínica registrado exitosamente.",
+    data: newHospital,
+  });
+});
+
+/**
+ * PATCH /:id
+ * Actualiza parcialmente los datos de un hospital o clínica existente.
+ */
+router.patch("/:id", async (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  const updatedHospital = await service.update(id, changes);
+  res.status(200).json({
+    message: "Hospital o clínica actualizado exitosamente.",
+    data: updatedHospital,
+  });
+});
+
+/**
+ * DELETE /:id
+ * Elimina un hospital o clínica existente por su ID.
+ */
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const deletedHospital = await service.delete(id);
+  res.status(200).json({
+    message: "Hospital o clínica eliminado exitosamente.",
+    data: deletedHospital,
+  });
+});
+
 module.exports = router;

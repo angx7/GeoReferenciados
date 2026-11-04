@@ -56,4 +56,47 @@ router.get("/:id", async (req, res) => {
   });
 });
 
+/**
+ * POST /
+ * Registra un nuevo estacionamiento público en memoria.
+ */
+router.post("/", async (req, res) => {
+  const parkingData = req.body;
+
+  const newParking = await service.create(parkingData);
+  res.status(201).json({
+    message: "Estacionamiento público registrado exitosamente.",
+    data: newParking,
+  });
+});
+
+/**
+ * PATCH /:id
+ * Actualiza parcialmente los datos de un estacionamiento público existente.
+ */
+router.patch("/:id", async (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+
+  const updatedParking = await service.update(id, changes);
+  res.status(200).json({
+    message: "Estacionamiento público actualizado exitosamente.",
+    data: updatedParking,
+  });
+});
+
+/**
+ * DELETE /:id
+ * Elimina un estacionamiento público existente por su ID.
+ */
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const deletedParking = await service.delete(id);
+  res.status(200).json({
+    message: "Estacionamiento público eliminado exitosamente.",
+    data: deletedParking,
+  });
+});
+
 module.exports = router;
