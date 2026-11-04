@@ -1,4 +1,4 @@
-# REPORTE DE PRÁCTICA: NUEVAS ENTIDADES EN BACKEND
+# REPORTE DE PRÁCTICA: NUEVAS ENTIDADES Y OPERACIONES CRUD EN BACKEND
 
 ---
 
@@ -7,7 +7,7 @@
 * **Institución:** Universidad / Instituto Tecnológico
 * **Carrera:** Ingeniería en Sistemas Computacionales / Tecnologías de la Información
 * **Asignatura:** Sistemas de Información Georreferenciados (7mo Semestre - 1er Parcial)
-* **Nombre de la Práctica:** Nuevas Entidades en Backend Georreferenciado
+* **Nombre de la Práctica:** Nuevas Entidades y Operaciones CRUD (Crear, Actualizar Parcialmente y Borrar) en Backend Georreferenciado
 * **Proyecto:** Sistema de Monitoreo Urbano e Incidentes Georreferenciados
 * **Ubicación de Estudio:** León, Guanajuato, México
 * **Fecha:** Octubre 2026
@@ -16,52 +16,31 @@
 
 ## 1. Introducción
 
-El desarrollo de aplicaciones georreferenciadas modernas exige una arquitectura en el backend que combine la gestión de recursos mediante interfaces de programación de aplicaciones RESTful con estándares internacionales de codificación geográfica como **GeoJSON (RFC 7946)**. 
+Continuando con el desarrollo de la aplicación para el monitoreo de incidentes urbanos en León, Guanajuato, en esta etapa nos enfocamos en crear y completar el backend que alimentará y dará soporte a toda la plataforma que diseñamos previamente.
 
-En esta práctica, se tomó como base el proyecto de backend desarrollado previamente en clase para la gestión de incidentes urbanos en la ciudad de León, Guanajuato. El objetivo principal consistió en **incorporar cuatro nuevas entidades georreferenciadas** provenientes de un catálogo de servicios e infraestructura municipal, completando así una arquitectura con **cinco entidades operativas**.
+El objetivo es centralizar la información en un servidor para que el mapa y los formularios no dependan de datos aislados. Además de conectar los incidentes que ya teníamos, enriquecimos la aplicación agregando cuatro nuevas entidades importantes para la ciudad: hospitales, estaciones de emergencia, cámaras de videovigilancia y estacionamientos públicos.
 
-Cada entidad implementada provee una estructura de datos estandarizada, soporte para consultas flexibles mediante filtros dinámicos (`search`, `type`, `status`), control riguroso de errores a través de clases de error personalizadas (`AppError`) con códigos de estado HTTP semánticos (como el `404 Not Found`), y la capacidad de transformar los registros tabulares en colecciones GeoJSON (`FeatureCollection` con geometrías `Point` [longitud, latitud]) listas para ser consumidas por librerías cartográficas de frontend como Leaflet, Mapbox o OpenLayers.
+Con esto, cada una de las cinco entidades cuenta con sus propias rutas para consultar información, aplicar filtros de búsqueda por tipo o estado, entregar las coordenadas en formato GeoJSON listo para Leaflet, y ejecutar las operaciones completas de **creación (`POST /`), actualización parcial (`PATCH /:id`) y eliminación (`DELETE /:id`)**, logrando un sistema completo y funcional.
 
 ---
 
 ## 2. Entidades Seleccionadas y Especificaciones Técnicas
 
-De acuerdo con la tabla provista en los requerimientos de la práctica, se seleccionaron las siguientes cuatro entidades urbanas:
+De acuerdo con la tabla provista en los requerimientos de la práctica, se seleccionaron las siguientes cuatro entidades urbanas adicionales a `incidents`:
 
-| Entidad | Ruta Base | Tipos Permitidos (`type`) | Estados Permitidos (`status`) | Campo Numérico y Validación |
-| :--- | :--- | :--- | :--- | :--- |
-| **Hospitales y clínicas** | `/api/hospitals` | `hospital`, `clinica`, `cruz_roja` | `operando`, `saturado`, `cerrado` | `beds` (entero 1 a 2000) |
-| **Estaciones de emergencia** | `/api/stations` | `bomberos`, `policia`, `proteccion_civil` | `activa`, `inactiva` | `units` (entero 1 a 100) |
-| **Cámaras de videovigilancia** | `/api/cameras` | `fija`, `ptz`, `lectora_placas` | `activa`, `falla`, `mantenimiento` | `rangeMeters` (entero 10 a 500) |
-| **Estacionamientos públicos** | `/api/parkings` | `superficie`, `techado`, `subterraneo` | `abierto`, `lleno`, `cerrado` | `capacity` (entero 1 a 5000) |
-
-> **Nota:** Junto con la entidad `incidents` (`/api/incidents`) existente, el sistema dispone de un total de **5 entidades completas**.
-
-### Estructura Canónica de Cada Registro
-Todos los registros en los datos semilla de las entidades contienen la estructura:
-```json
-{
-  "id": "CADENA_UNICA",
-  "name": "Nombre descriptivo de la entidad",
-  "type": "tipo_permitido",
-  "status": "estado_permitido",
-  "description": "Detalles descriptivos del punto de interés",
-  "<campoNumerico>": 123,
-  "location": {
-    "type": "Point",
-    "coordinates": [-101.6812, 21.1248]
-  },
-  "createdAt": "2026-01-10T08:00:00.000Z",
-  "updatedAt": "2026-01-10T08:00:00.000Z"
-}
-```
-*Las coordenadas respetan el estándar GeoJSON:* `[longitud, latitud]`, donde para León, Guanajuato la longitud se encuentra en torno a `-101.68` y la latitud en torno a `21.12`.
+| Entidad | Ruta Base | Prefijo ID | Tipos Permitidos (`type`) | Estados Permitidos (`status`) | Campo Numérico |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **Incidentes urbanos** | `/api/incidents` | `INC-` | `bache`, `alumbrado`, `basura`, `fuga`, `accidente` | `pendiente`, `atendido` | N/A |
+| **Hospitales y clínicas** | `/api/hospitals` | `HOSP-` | `hospital`, `clinica`, `cruz_roja` | `operando`, `saturado`, `cerrado` | `beds` (entero 1 a 2000) |
+| **Estaciones de emergencia** | `/api/stations` | `STAT-` | `bomberos`, `policia`, `proteccion_civil` | `activa`, `inactiva` | `units` (entero 1 a 100) |
+| **Cámaras de videovigilancia** | `/api/cameras` | `CAM-` | `fija`, `ptz`, `lectora_placas` | `activa`, `falla`, `mantenimiento` | `rangeMeters` (entero 10 a 500) |
+| **Estacionamientos públicos** | `/api/parkings` | `PARK-` | `superficie`, `techado`, `subterraneo` | `abierto`, `lleno`, `cerrado` | `capacity` (entero 1 a 5000) |
 
 ---
 
 ## 3. Estructura del Proyecto
 
-La arquitectura del proyecto sigue una estricta separación de responsabilidades en tres capas fundamentales (**Datos Semilla -> Servicios de Negocio -> Enrutadores Express**), centralizadas por el archivo de rutas `routes/index.js` y expuestas por la aplicación `app.js`:
+La arquitectura del proyecto sigue una estricta separación de responsabilidades en tres capas (**Datos Semilla -> Servicios de Negocio -> Enrutadores Express**), centralizadas por el archivo `routes/index.js`:
 
 ```text
 SistemaAccidente/
@@ -74,30 +53,30 @@ SistemaAccidente/
     ├── package.json
     ├── .env
     ├── request/
-    │   ├── api.http                    # Archivo de pruebas HTTP completas para REST Client
+    │   ├── api.http                    # Colección de pruebas GET, POST, PATCH y DELETE
     │   └── incidents.http
     └── src/
-        ├── app.js                      # Configuración de Express, middlewares y bienvenida
+        ├── app.js                      # Configuración de Express y middlewares
         ├── index.js                    # Punto de entrada y arranque del servidor HTTP
-        ├── data/                       # Semillas de datos (Capas de persistencia en memoria)
+        ├── data/                       # Semillas de datos en memoria (León, Gto.)
         │   ├── incidents.seed.js
-        │   ├── hospitals.seed.js       # [NUEVO] Semilla con 7 registros reales de León
-        │   ├── stations.seed.js        # [NUEVO] Semilla con 7 registros reales de León
-        │   ├── cameras.seed.js         # [NUEVO] Semilla con 7 registros reales de León
-        │   └── parkings.seed.js        # [NUEVO] Semilla con 7 registros reales de León
-        ├── services/                   # Lógica de negocio y transformación a GeoJSON
-        │   ├── incidents.service.js    # [CORREGIDO] Corrección typo 'FeatureCollection'
-        │   ├── hospitals.service.js    # [NUEVO] Servicio para hospitales
-        │   ├── stations.service.js     # [NUEVO] Servicio para estaciones
-        │   ├── cameras.service.js      # [NUEVO] Servicio para cámaras
-        │   └── parkings.service.js     # [NUEVO] Servicio para estacionamientos
-        ├── routes/                     # Controladores y rutas HTTP
-        │   ├── index.js                # [MODIFICADO] Montaje de las 5 entidades en apiRouter
-        │   ├── incidents.router.js     # [CORREGIDO] Invocación de getGeoJSON() en /geojson
-        │   ├── hospitals.router.js     # [NUEVO] Router de hospitales
-        │   ├── stations.router.js      # [NUEVO] Router de estaciones
-        │   ├── cameras.router.js       # [NUEVO] Router de cámaras
-        │   └── parkings.router.js      # [NUEVO] Router de estacionamientos
+        │   ├── hospitals.seed.js
+        │   ├── stations.seed.js
+        │   ├── cameras.seed.js
+        │   └── parkings.seed.js
+        ├── services/                   # Lógica de negocio (getAll, getById, create, update, delete, getGeoJSON)
+        │   ├── incidents.service.js
+        │   ├── hospitals.service.js
+        │   ├── stations.service.js
+        │   ├── cameras.service.js
+        │   └── parkings.service.js
+        ├── routes/                     # Controladores HTTP (GET, POST, PATCH, DELETE)
+        │   ├── index.js
+        │   ├── incidents.router.js
+        │   ├── hospitals.router.js
+        │   ├── stations.router.js
+        │   ├── cameras.router.js
+        │   └── parkings.router.js
         ├── middlewares/
         │   └── error.handler.js        # Manejador centralizado de errores y 404
         └── utils/
@@ -108,324 +87,174 @@ SistemaAccidente/
 
 ## 4. Desarrollo Paso a Paso y Explicación de Cambios
 
-### 4.1. Creación de Semillas de Datos (`src/data/*.seed.js`)
-Se crearon cuatro archivos de datos semilla con coordenadas geográficas reales de la ciudad de León, Guanajuato. Cada semilla incluye al menos 6 registros reales (se incluyeron 7 por entidad), contemplando diversidad de tipos y estados:
+### 4.1. Operaciones en la Capa de Servicios (`src/services/*.service.js`)
+Siguiendo exactamente el patrón desarrollado en clase dentro de `incidents.service.js`, se implementaron los métodos `create(data)`, `update(id, changes)` y `delete(id)` en los cuatro servicios adicionales (`HospitalsService`, `StationsService`, `CamerasService` y `ParkingsService`):
 
-1. **`src/data/hospitals.seed.js`**:
-   * Ubicaciones reales: Hospital General Regional de León (San Carlos), Hospital Aranda de la Parra, Cruz Roja Mexicana León I, UMAE T1 del IMSS, Clínica ISSSTE Azteca, Hospital Materno Infantil y Centro Médico Campestre.
-   * Atributos cubiertos: `id`, `name`, `type` (`hospital`, `clinica`, `cruz_roja`), `status` (`operando`, `saturado`, `cerrado`), `description`, `beds` (20 a 480 camas), `location` (`Point` con `[long, lat]`), `createdAt`, `updatedAt`.
+1. **`create(data)` (Crear)**:
+   * Utiliza `randomUUID()` del módulo nativo `node:crypto` junto con el prefijo de la entidad (`HOSP-`, `STAT-`, `CAM-`, `PARK-`).
+   * Limpia cadenas con `.trim()`, convierte el atributo numérico y las coordenadas `[Number(data.longitude), Number(data.latitude)]` a número para construir el punto GeoJSON `Point`.
+   * Asigna las marcas de tiempo `createdAt` y `updatedAt` con `new Date().toISOString()`, inserta el elemento en el arreglo en memoria y lo retorna.
 
-2. **`src/data/stations.seed.js`**:
-   * Ubicaciones reales: Estación Central de Bomberos No. 1 (Obrera), Estación de Bomberos No. 3 (Zona Norte), Estación de Bomberos No. 6 (Zona Sur), Dirección General de Policía Municipal y Policía Vial (Cepol Poniente), Comisaría San Juan Bosco, Base Central de Protección Civil (La Pradera) y Módulo Parque Hidalgo.
-   * Atributos cubiertos: `id`, `name`, `type` (`bomberos`, `policia`, `proteccion_civil`), `status` (`activa`, `inactiva`), `description`, `units` (2 a 45 vehículos), `location`, `createdAt`, `updatedAt`.
+2. **`update(id, changes)` (Actualizar parcialmente)**:
+   * Busca la posición del registro con `findIndex((item) => item.id === id)`. Si retorna `-1`, lanza un `AppError(404, ...)`.
+   * Conserva las coordenadas actuales (`currentLongitude`, `currentLatitude`) si no se envían nuevas coordenadas en `changes`.
+   * Emplea el operador *spread* (`...currentItem`) y propagación condicional (`...(changes.campo !== undefined && { campo: ... })`) para modificar únicamente las propiedades enviadas en la petición sin perder el resto de la información.
+   * Actualiza `updatedAt` a la fecha/hora actual y guarda el registro modificado en la misma posición del arreglo.
 
-3. **`src/data/cameras.seed.js`**:
-   * Ubicaciones reales: Distribuidor Vial Benito Juárez, Arco de la Calzada de los Héroes, Complejo Poliforum León, Acceso Carretero Silao-León (Blvd. Aeropuerto), Acceso Carretero Insurgentes (Lagos de Moreno), Glorieta Gutiérrez Nájera y Centro Comercial Plaza Mayor.
-   * Atributos cubiertos: `id`, `name`, `type` (`ptz`, `fija`, `lectora_placas`), `status` (`activa`, `falla`, `mantenimiento`), `description`, `rangeMeters` (45 a 300 metros), `location`, `createdAt`, `updatedAt`.
+3. **`delete(id)` (Borrar)**:
+   * Localiza el índice del elemento con `findIndex`. Si no existe (`index === -1`), lanza un `AppError(404, ...)`.
+   * Extrae y elimina el elemento del arreglo mediante `this.<entidad>.splice(index, 1)[0]` y retorna el registro eliminado.
 
-4. **`src/data/parkings.seed.js`**:
-   * Ubicaciones reales: Estacionamiento Subterráneo Plaza Principal / Fundadores, Estacionamiento Poliforum León, Estacionamiento Multinivel Techado Plaza Mayor, Estacionamiento Superficie Barrio San Juan de Dios, Estacionamiento Techado Terminal de Autobuses, Estacionamiento Superficie Calle La Paz Centro y Estacionamiento Subterráneo Calzada de los Héroes.
-   * Atributos cubiertos: `id`, `name`, `type` (`subterraneo`, `superficie`, `techado`), `status` (`abierto`, `lleno`, `cerrado`), `description`, `capacity` (60 a 2200 cajones), `location`, `createdAt`, `updatedAt`.
-
----
-
-### 4.2. Implementación de la Capa de Servicios (`src/services/*.service.js`)
-Cada entidad cuenta con su respectiva clase de servicio (`HospitalsService`, `StationsService`, `CamerasService`, `ParkingsService`), implementando los métodos exigidos por la práctica:
-
-* **`constructor()`**: Inicializa una copia aislada de los datos semilla mediante `structuredClone()`, garantizando que las consultas o modificaciones no alteren la referencia original del archivo.
-* **`getAll(filters = {})`**:
-  * Aplica filtros opcionales recibidos por query string: `search`, `type`, `status`.
-  * Realiza una búsqueda insensible a mayúsculas y acentos sobre nombre, descripción y tipo con la función `normalizeText()`.
-  * Filtra por `type` y `status` si son diferentes a `'all'`.
-  * Ordena los resultados por fecha de creación descendente (`createdAt`), mostrando los más recientes primero.
-* **`getById(id)`**:
-  * Localiza el elemento mediante su ID único.
-  * Si el elemento no existe, arroja una excepción `throw new AppError(404, "<Entidad> no encontrado/inexistente con el id: ${id}")`, que se delega automáticamente al manejador de errores de Express.
-* **`getGeoJSON(filters = {})`**:
-  * Invoca `getAll(filters)` para obtener los elementos filtrados.
-  * Mapea cada registro a una estructura GeoJSON `Feature` con sus propiedades y geometría `Point`, retornando un objeto `FeatureCollection`.
-* **`normalizeText(value = "")`**:
-  * Convierte cadenas a minúsculas, aplica descomposición `NFD` y elimina tildes y diacríticos con una expresión regular (`/[\u0300-\u036f]/g`).
-
-#### Fragmento representativo del servicio (ejemplo de `HospitalsService`):
+#### Ejemplo de implementación en `HospitalsService` (`src/services/hospitals.service.js`):
 ```javascript
-// src/services/hospitals.service.js
-"use strict";
+  async create(data) {
+    const coordinates =
+      data.location && Array.isArray(data.location.coordinates)
+        ? [
+            Number(data.location.coordinates[0]),
+            Number(data.location.coordinates[1]),
+          ]
+        : [Number(data.longitude), Number(data.latitude)];
 
-const seedHospitals = require("../data/hospitals.seed");
-const AppError = require("../utils/appError");
-
-class HospitalsService {
-  constructor() {
-    this.hospitals = structuredClone(seedHospitals);
-  }
-
-  async getAll(filters = {}) {
-    const { search = "", type = "all", status = "all" } = filters;
-    let result = [...this.hospitals];
-
-    const normalizedSearch = this.normalizeText(search);
-    if (normalizedSearch) {
-      result = result.filter((hospital) => {
-        const searchableContent = this.normalizeText(
-          `${hospital.name} ${hospital.description} ${hospital.type}`
-        );
-        return searchableContent.includes(normalizedSearch);
-      });
-    }
-
-    if (type && type !== "all") {
-      result = result.filter((hospital) => hospital.type === type);
-    }
-
-    if (status && status !== "all") {
-      result = result.filter((hospital) => hospital.status === status);
-    }
-
-    result.sort(
-      (first, second) => new Date(second.createdAt) - new Date(first.createdAt)
-    );
-    return result;
-  }
-
-  async getById(id) {
-    const hospital = this.hospitals.find((item) => item.id === id);
-    if (!hospital) {
-      throw new AppError(404, `Hospital no encontrado/inexistente con el id: ${id}`);
-    }
-    return hospital;
-  }
-
-  async getGeoJSON(filters = {}) {
-    const items = await this.getAll(filters);
-    return {
-      type: "FeatureCollection",
-      features: items.map((hospital) => ({
-        type: "Feature",
-        properties: {
-          id: hospital.id,
-          name: hospital.name,
-          type: hospital.type,
-          status: hospital.status,
-          description: hospital.description,
-          beds: hospital.beds,
-          createdAt: hospital.createdAt,
-          updatedAt: hospital.updatedAt,
-        },
-        geometry: hospital.location,
-      })),
-    };
-  }
-
-  normalizeText(value = "") {
-    return String(value || "")
-      .toLowerCase()
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "")
-      .trim();
-  }
-}
-
-module.exports = HospitalsService;
-```
-
----
-
-### 4.3. Implementación de los Enrutadores (`src/routes/*.router.js`)
-Se crearon los módulos de rutas correspondientes:
-* `src/routes/hospitals.router.js`
-* `src/routes/stations.router.js`
-* `src/routes/cameras.router.js`
-* `src/routes/parkings.router.js`
-
-Cada archivo expone tres endpoints HTTP:
-1. `GET /`: Devuelve `{ count: number, data: Array }` con los registros filtrados.
-2. `GET /geojson`: Devuelve la estructura `FeatureCollection` GeoJSON. **Crucial:** Esta ruta se define **antes** de `GET /:id` para evitar que el enrutador de Express confunda la palabra `geojson` con un identificador dinámico.
-3. `GET /:id`: Devuelve `{ data: Object }` con la información del registro solicitado, o responde con código `404` mediante `AppError` en caso de no encontrarse.
-
-#### Fragmento representativo del router (ejemplo de `cameras.router.js`):
-```javascript
-// src/routes/cameras.router.js
-"use strict";
-
-const express = require("express");
-const CamerasService = require("../services/cameras.service");
-
-const router = express.Router();
-const service = new CamerasService();
-
-// GET / - Listado general con soporte de filtros
-router.get("/", async (req, res) => {
-  const filters = {
-    search: req.query.search,
-    type: req.query.type,
-    status: req.query.status,
-  };
-  const cameras = await service.getAll(filters);
-  res.status(200).json({ count: cameras.length, data: cameras });
-});
-
-// GET /geojson - GeoJSON FeatureCollection para visualizadores cartográficos
-router.get("/geojson", async (req, res) => {
-  const filters = {
-    search: req.query.search,
-    type: req.query.type,
-    status: req.query.status,
-  };
-  const geoJSON = await service.getGeoJSON(filters);
-  res.status(200).json(geoJSON);
-});
-
-// GET /:id - Detalle de un registro específico
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  const camera = await service.getById(id);
-  res.status(200).json({ data: camera });
-});
-
-module.exports = router;
-```
-
----
-
-### 4.4. Centralización de Rutas en `src/routes/index.js`
-Se modificó `src/routes/index.js` para registrar los cuatro nuevos routers en `apiRouter` cumpliendo con la sintaxis exigida:
-```javascript
-"use strict";
-
-const express = require("express");
-
-// Importación de enrutadores
-const incidentsRouter = require("./incidents.router");
-const hospitalsRouter = require("./hospitals.router");
-const stationsRouter = require("./stations.router");
-const camerasRouter = require("./cameras.router");
-const parkingsRouter = require("./parkings.router");
-
-function routerApi(app) {
-  const apiRouter = express.Router();
-  app.use("/api", apiRouter);
-
-  // Registro de las 5 entidades
-  apiRouter.use("/incidents", incidentsRouter);
-  apiRouter.use("/hospitals", hospitalsRouter);
-  apiRouter.use("/stations", stationsRouter);
-  apiRouter.use("/cameras", camerasRouter);
-  apiRouter.use("/parkings", parkingsRouter);
-}
-
-module.exports = routerApi;
-```
-
----
-
-### 4.5. Mejoras en `src/app.js` y Corrección del Código Base
-1. **Catálogo de Bienvenida en `GET /`**:
-   Se actualizó el endpoint base de `app.js` para documentar la totalidad de los recursos disponibles de la API:
-   ```json
-   {
-     "name": "API de Incidentes Urbanos y Entidades Georreferenciadas - León, Gto.",
-     "version": "1.0.0",
-     "endpoints": {
-       "health": "/api/health",
-       "incidents": { "all": "/api/incidents", "geojson": "/api/incidents/geojson" },
-       "hospitals": { "all": "/api/hospitals", "geojson": "/api/hospitals/geojson" },
-       "stations": { "all": "/api/stations", "geojson": "/api/stations/geojson" },
-       "cameras": { "all": "/api/cameras", "geojson": "/api/cameras/geojson" },
-       "parkings": { "all": "/api/parkings", "geojson": "/api/parkings/geojson" }
-     }
-   }
-   ```
-2. **Corrección en `incidents.router.js`**:
-   Se detectó que en el endpoint `GET /geojson` de la entidad original `incidents`, se invocaba erróneamente `service.getAll(filters)` en vez de `service.getGeoJSON(filters)`. Se corrigió la llamada para que entregue una colección GeoJSON real.
-3. **Corrección en `incidents.service.js`**:
-   Se corrigió el nombre del tipo en la salida GeoJSON de `"FeaturedCollection"` a `"FeatureCollection"`, cumpliendo con el estándar RFC 7946.
-
----
-
-## 5. Resultados y Verificación de Funcionamiento
-
-Se implementaron pruebas automatizadas y un archivo de peticiones HTTP (`backend/request/api.http`) para verificar el correcto funcionamiento de cada endpoint.
-
-### 5.1. Matriz de Pruebas Ejecutadas
-Todas las pruebas unitarias y de integración fueron ejecutadas con éxito:
-
-* **Hospitales y clínicas (`/api/hospitals`)**:
-  * `GET /api/hospitals` -> 200 OK (7 registros, propiedades completas, camas 20-480).
-  * `GET /api/hospitals/geojson` -> 200 OK (Estructura `FeatureCollection` válida).
-  * `GET /api/hospitals/HOSP-001` -> 200 OK (Hospital General Regional de León).
-  * `GET /api/hospitals/HOSP-999` -> 404 Not Found (`AppError`: "Hospital no encontrado/inexistente con el id: HOSP-999").
-  * `GET /api/hospitals?type=clinica` -> 200 OK (Filtrado exitoso por tipo).
-  * `GET /api/hospitals?status=saturado` -> 200 OK (Filtrado exitoso por estado).
-
-* **Estaciones de emergencia (`/api/stations`)**:
-  * `GET /api/stations` -> 200 OK (7 estaciones: bomberos, policía y protección civil).
-  * `GET /api/stations/geojson` -> 200 OK (Geometrías `Point` en León, Gto.).
-  * `GET /api/stations/STAT-001` -> 200 OK (Estación Central de Bomberos No. 1).
-  * `GET /api/stations/STAT-999` -> 404 Not Found (`AppError`).
-
-* **Cámaras de videovigilancia (`/api/cameras`)**:
-  * `GET /api/cameras` -> 200 OK (7 cámaras: PTZ, fijas y lectoras LPR).
-  * `GET /api/cameras/geojson` -> 200 OK (`FeatureCollection`).
-  * `GET /api/cameras/CAM-001` -> 200 OK (Cámara PTZ Distribuidor Vial Benito Juárez).
-  * `GET /api/cameras/CAM-999` -> 404 Not Found (`AppError`).
-
-* **Estacionamientos públicos (`/api/parkings`)**:
-  * `GET /api/parkings` -> 200 OK (7 estacionamientos: subterráneos, techados y superficie).
-  * `GET /api/parkings/geojson` -> 200 OK (`FeatureCollection`).
-  * `GET /api/parkings/PARK-001` -> 200 OK (Estacionamiento Subterráneo Plaza Principal).
-  * `GET /api/parkings/PARK-999` -> 404 Not Found (`AppError`).
-
-### 5.2. Ejemplo de Respuesta JSON (`GET /api/hospitals/HOSP-001`)
-```json
-{
-  "data": {
-    "id": "HOSP-001",
-    "name": "Hospital General Regional de León",
-    "type": "hospital",
-    "status": "operando",
-    "description": "Hospital público de alta especialidad con atención de urgencias 24/7 y diversas especialidades médicas.",
-    "beds": 250,
-    "location": {
-      "type": "Point",
-      "coordinates": [-101.5815, 21.0772]
-    },
-    "createdAt": "2026-01-10T08:00:00.000Z",
-    "updatedAt": "2026-01-10T08:00:00.000Z"
-  }
-}
-```
-
-### 5.3. Ejemplo de Respuesta GeoJSON (`GET /api/cameras/geojson`)
-```json
-{
-  "type": "FeatureCollection",
-  "features": [
-    {
-      "type": "Feature",
-      "properties": {
-        "id": "CAM-001",
-        "name": "Cámara PTZ Distribuidor Vial Benito Juárez",
-        "type": "ptz",
-        "status": "activa",
-        "description": "Domo robótico 360 grados de alta resolución para supervisión de tráfico en la intersección de Morelos y López Mateos.",
-        "rangeMeters": 300,
-        "createdAt": "2026-01-10T07:00:00.000Z",
-        "updatedAt": "2026-01-10T07:00:00.000Z"
+    const newHospital = {
+      id: `HOSP-${randomUUID()}`,
+      name: data.name.trim(),
+      type: data.type,
+      status: data.status || "operando",
+      description: data.description.trim(),
+      beds: Number(data.beds),
+      location: {
+        type: "Point",
+        coordinates,
       },
-      "geometry": {
-        "type": "Point",
-        "coordinates": [-101.6668, 21.1585]
-      }
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.hospitals.push(newHospital);
+    return newHospital;
+  }
+
+  async update(id, changes) {
+    const index = this.hospitals.findIndex((hospital) => hospital.id === id);
+    if (index === -1) {
+      throw new AppError(
+        404,
+        `Hospital no encontrado/inexistente con el id: ${id}`,
+      );
     }
-  ]
-}
+
+    const currentHospital = this.hospitals[index];
+    const currentLongitude = currentHospital.location.coordinates[0];
+    const currentLatitude = currentHospital.location.coordinates[1];
+
+    const updatedLongitude =
+      changes.longitude !== undefined
+        ? Number(changes.longitude)
+        : currentLongitude;
+
+    const updatedLatitude =
+      changes.latitude !== undefined
+        ? Number(changes.latitude)
+        : currentLatitude;
+
+    const updatedHospital = {
+      ...currentHospital,
+      ...(changes.name !== undefined && { name: changes.name.trim() }),
+      ...(changes.type !== undefined && { type: changes.type }),
+      ...(changes.status !== undefined && { status: changes.status }),
+      ...(changes.description !== undefined && {
+        description: changes.description.trim(),
+      }),
+      ...(changes.beds !== undefined && { beds: Number(changes.beds) }),
+      location: {
+        type: "Point",
+        coordinates: [updatedLongitude, updatedLatitude],
+      },
+      updatedAt: new Date().toISOString(),
+    };
+
+    this.hospitals[index] = updatedHospital;
+    return updatedHospital;
+  }
+
+  async delete(id) {
+    const index = this.hospitals.findIndex((hospital) => hospital.id === id);
+    if (index === -1) {
+      throw new AppError(
+        404,
+        `Hospital no encontrado/inexistente con el id: ${id}`,
+      );
+    }
+
+    const deletedHospital = this.hospitals.splice(index, 1)[0];
+    return deletedHospital;
+  }
 ```
+
+---
+
+### 4.2. Actualización de Enrutadores (`src/routes/*.router.js`)
+En los 5 enrutadores (`incidents.router.js`, `hospitals.router.js`, `stations.router.js`, `cameras.router.js` y `parkings.router.js`) se completaron los endpoints para exponer todas las operaciones del servicio:
+
+* `GET /`: Lista todos los registros (con filtros `search`, `type`/`category`, `status`).
+* `GET /geojson`: Exporta la colección en formato `FeatureCollection` de GeoJSON.
+* `GET /:id`: Obtiene un registro por su ID o devuelve `404 Not Found`.
+* `POST /`: Crea un nuevo registro y devuelve código `201 Created`.
+* `PATCH /:id`: Actualiza parcialmente un registro existente por su ID y devuelve `200 OK`.
+* `DELETE /:id`: Elimina un registro por su ID y devuelve `200 OK` con el elemento eliminado.
+
+```javascript
+// POST / - Crear registro
+router.post("/", async (req, res) => {
+  const hospitalData = req.body;
+  const newHospital = await service.create(hospitalData);
+  res.status(201).json({
+    message: "Hospital o clínica registrado exitosamente.",
+    data: newHospital,
+  });
+});
+
+// PATCH /:id - Actualizar parcialmente
+router.patch("/:id", async (req, res) => {
+  const { id } = req.params;
+  const changes = req.body;
+  const updatedHospital = await service.update(id, changes);
+  res.status(200).json({
+    message: "Hospital o clínica actualizado exitosamente.",
+    data: updatedHospital,
+  });
+});
+
+// DELETE /:id - Eliminar registro
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  const deletedHospital = await service.delete(id);
+  res.status(200).json({
+    message: "Hospital o clínica eliminado exitosamente.",
+    data: deletedHospital,
+  });
+});
+```
+
+---
+
+## 5. Pruebas de Endpoints (`backend/request/api.http`)
+
+En el archivo `backend/request/api.http` se dejaron configuradas todas las peticiones para probar `GET`, `POST`, `PATCH` y `DELETE` sobre las 5 entidades:
+
+| Entidad | Crear (`POST`) | Actualizar Parcial (`PATCH`) | Borrar (`DELETE`) |
+| :--- | :--- | :--- | :--- |
+| **Incidentes** | `POST /api/incidents` | `PATCH /api/incidents/INC-001` | `DELETE /api/incidents/INC-001` |
+| **Hospitales** | `POST /api/hospitals` | `PATCH /api/hospitals/HOSP-001` | `DELETE /api/hospitals/HOSP-007` |
+| **Estaciones** | `POST /api/stations` | `PATCH /api/stations/STAT-001` | `DELETE /api/stations/STAT-007` |
+| **Cámaras** | `POST /api/cameras` | `PATCH /api/cameras/CAM-003` | `DELETE /api/cameras/CAM-006` |
+| **Estacionamientos** | `POST /api/parkings` | `PATCH /api/parkings/PARK-004` | `DELETE /api/parkings/PARK-006` |
 
 ---
 
 ## 6. Conclusiones
 
-1. **Modularidad y Escalabilidad:** La arquitectura por capas implementada en el backend permitió incorporar cuatro entidades complejas con rapidez y consistencia técnica, manteniendo un desacoplamiento limpio entre la fuente de datos (`seed`), la lógica de consulta y transformación (`service`) y el protocolo de comunicación (`router`).
-2. **Cumplimiento de Estándares Geográficos:** La adopción rigurosa de GeoJSON (RFC 7946) con orden `[longitud, latitud]` garantiza la interoperabilidad inmediata con herramientas de mapeo web (como Leaflet en el cliente frontend) y sistemas GIS empresariales.
-3. **Manejo Robusto de Errores y Calidad de Código:** La centralización del manejo de excepciones mediante `AppError` y los middlewares de Express asegura respuestas uniformes, códigos de estado HTTP precisos (200, 400, 404, 500) y previene fallos inesperados en el servidor ante consultas de identificadores inexistentes o parámetros mal formateados.
+1. **Consistencia en la Arquitectura:** Mantener la misma estructura vista en clase (`randomUUID`, `findIndex`, propagación condicional en `update`, `splice` en `delete` y manejo de excepciones con `AppError`) facilitó escalar el CRUD completo hacia las cuatro nuevas entidades sin duplicar lógica innecesaria.
+2. **Actualizaciones Parciales Seguras (`PATCH`):** El uso de desestructuración y propagación condicional permite modificar únicamente los atributos enviados por el cliente (como cambiar el estado o la capacidad de un estacionamiento) preservando intactas sus coordenadas GeoJSON y demás propiedades.
+3. **Preparación para Integración con Leaflet:** Con los métodos de lectura, creación, edición parcial y borrado activos en las cinco entidades, el backend cuenta con todo lo necesario para sincronizarse en tiempo real con el mapa interactivo del frontend.
