@@ -200,3 +200,46 @@ Content-Type: application/json
 
 ### 5.6 Eliminar un estacionamiento (DELETE)
 DELETE {{baseUrl}}/parkings/PARK-004
+
+### ==============================================================================
+### 6. PRUEBAS DE CASOS LÍMITE Y VALIDACIONES (/api/incidents)
+### ==============================================================================
+
+### 14. Latitud fuera de rango
+POST {{baseUrl}}/incidents
+Content-Type: application/json
+
+{
+  "title": "Prueba latitud extrema",
+  "category": "bache",
+  "description": "Prueba con coordenada geográfica fuera del rango estándar (-90 a 90)",
+  "status": "pendiente",
+  "latitude": 120,
+  "longitude": -101.68
+}
+
+### 15. Solo un campo en POST (Faltan campos obligatorios)
+POST {{baseUrl}}/incidents
+Content-Type: application/json
+
+{
+  "title": "Solo título"
+}
+
+### 16. PATCH con un campo que no existe en el modelo
+PATCH {{baseUrl}}/incidents/INC-001
+Content-Type: application/json
+
+{
+  "color": "rojo"
+}
+
+### 17. JSON mal formado (falta la llave de cierre)
+POST {{baseUrl}}/incidents
+Content-Type: application/json
+
+{
+  "title": "sin cerrar"
+
+### 18. Filtro con categoría inexistente o inválida
+GET {{baseUrl}}/incidents?category=meteorito

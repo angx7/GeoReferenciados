@@ -28,13 +28,12 @@ function errorHandler(err, req, res, next) {
     return next(err);
   }
 
-  // Error producto por un json mal escrito en el body
-
+  // Error producto por un JSON mal escrito en el body
   if (err instanceof SyntaxError && err.status === 400 && "body" in err) {
     return res.status(400).json({
       error: {
         status: 400,
-        message: "El cuerpo del JSON contienen un error de sintaxis",
+        message: "El cuerpo JSON contiene un error de sintaxis.",
         path: req.originalUrl,
         timestamp: new Date().toISOString(),
       },

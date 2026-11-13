@@ -5,6 +5,7 @@ const express = require("express");
 const cors = require("cors");
 
 const routerApi = require("./routes");
+const AppError = require("./utils/appError");
 
 const {
   notFoundHandler,
@@ -13,16 +14,54 @@ const {
 } = require("./middlewares/error.handler");
 
 const app = express();
+// ORIGENES PERMITIDOS (vienen del .env separados por coma)
+const allowedOrigins = (process.env.FRONTEND_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 
-app.use(cors());
-app.use(express.json());
+// CORS
+app.use(
+  cors({
+    origin(origin, callback) {
+      // POSTMAN, REST Client y curl no siempre envian ORIGIN
+      if (!origin) {
+        return callback(null, true);
+      }
+      // Si no se configuraron origenes, se permite todo (desarrollo)
+      if (allowedOrigins.length === 0) {
+        return callback(null, true);
+      }
+
+      if (allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+
+      return callback(
+        new AppError(403, `El origen ${origin} no está permitido por CORS.`),
+      );
+    },
+  }),
+);
+// PROCESAR JSON (máximo 100kb por petición|)
+app.use(express.json({ limit: "100kb" }));
+
+app.use((req, res, next) => {
+  const startTime = Date.now();
+  res.on("finish", () => {
+    const duration = Date.now() - startTime;
+    console.log(
+      `${req.method} ${req.originalUrl} ${res.statusCode} - ${duration}ms`,
+    );
+  });
+  next();
+});
 
 // Endpoint raíz con documentación de bienvenida y listado de recursos disponibles
-
 app.get("/", (req, res) => {
   res.status(200).json({
     name: "API de Incidentes Urbanos y Entidades Georreferenciadas - León, Gto.",
-    version: "1.1.0",
+    version: "1.1.1",
     endpoints: {
       health: "/api/health",
       incidents: {
